@@ -1,13 +1,17 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/shopify-pos-display/shopify-pos-backend:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'gcr.io/shopify-pos-display/shopify-pos-backend:latest', '.']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/shopify-pos-display/shopify-pos-backend:$COMMIT_SHA']
+    args: ['push', 'gcr.io/shopify-pos-display/shopify-pos-backend:latest']
   - name: 'gcr.io/cloud-builders/kubectl'
-    args: ['set', 'image', 'deployment/shopify-pos-deployment', 'shopify-pos=gcr.io/shopify-pos-display/shopify-pos-backend:$COMMIT_SHA']
-    env:
-      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=shopify-pos-cluster'
+    args: ['apply', '-f', 'deployment.yml']
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'service.yaml']
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  logsBucket: gs://shopify-pos-logs
 
 images:
-  - 'gcr.io/shopify-pos-display/shopify-pos-backend:$COMMIT_SHA'
+  - 'gcr.io/shopify-pos-display/shopify-pos-backend:latest'
+
