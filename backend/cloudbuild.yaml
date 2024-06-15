@@ -4,4 +4,4 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$shopify-pos-display/shopify-pos-backend:latest']
 images:
-  - 'gcr.io/$PROJECT_ID/shopify-pos-backend:latest'
+  - 'gcr.io/$shopify-pos-display/shopify-pos-backend:latest'
