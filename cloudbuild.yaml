@@ -10,8 +10,8 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  logsBucket: gs://shopify-pos-logs
+
+logsBucket: gs://shopify-pos-logs
 
 images:
   - 'gcr.io/shopify-pos-display/shopify-pos-backend:latest'
-
