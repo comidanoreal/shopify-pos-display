@@ -1,7 +1,0 @@
-steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$shopify-pos-display/shopify-pos-backend:latest', '.']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$shopify-pos-display/shopify-pos-backend:latest']
-images:
-  - 'gcr.io/$shopify-pos-display/shopify-pos-backend:latest'
