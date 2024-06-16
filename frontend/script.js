@@ -1,26 +1,42 @@
-const branchName = 'your-branch-name'; // Replace with actual branch name
-const userEmail = 'your-user-email'; // Replace with actual user email
+document.getElementById('connectForm').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-const ws = new WebSocket(`ws://your-server-ip-or-domain/ws?branch_name=${branchName}&user_email=${userEmail}`);
+    const branchName = document.getElementById('branchName').value;
+    const userEmail = document.getElementById('userEmail').value;
 
-ws.onmessage = (event) => {
-    const order = JSON.parse(event.data);
-    updateOrderDetails(order);
-};
+    const ws = new WebSocket(`ws://${window.location.host}/ws?branch_name=${branchName}&user_email=${userEmail}`);
 
-function updateOrderDetails(order) {
-    const userInfo = document.getElementById('user-info');
-    const lineItems = document.getElementById('line-items');
-    const totalPrice = document.getElementById('total-price');
+    ws.onmessage = function(event) {
+        const message = JSON.parse(event.data);
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
 
-    userInfo.textContent = `Usuario: ${userEmail}, Sucursal: ${branchName}`;
-    lineItems.innerHTML = '';
+        let lineItemsContent = '';
+        message.line_items.forEach(item => {
+            lineItemsContent += `
+                <p><strong>Product:</strong> ${item.product_name}</p>
+                <p><strong>Quantity:</strong> ${item.quantity}</p>
+                <p><strong>Price:</strong> ${item.price}</p>
+                <p><strong>Subtotal:</strong> ${item.quantity * item.price}</p>
+                <hr>
+            `;
+        });
 
-    order.line_items.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = `${item.name}: ${item.quantity} x ${item.price}`;
-        lineItems.appendChild(li);
-    });
+        messageElement.innerHTML = `
+            <p><strong>Branch:</strong> ${branchName}</p>
+            <p><strong>User:</strong> ${userEmail}</p>
+            ${lineItemsContent}
+            <p><strong>Total Price:</strong> ${message.total_price}</p>
+            <hr>
+        `;
+        messagesDiv.appendChild(messageElement);
+    };
 
-    totalPrice.textContent = `Total: $${order.total_price}`;
-}
+    ws.onopen = function() {
+        console.log('Connected to WebSocket');
+    };
+
+    ws.onclose = function() {
+        console.log('Disconnected from WebSocket');
+    };
+});
