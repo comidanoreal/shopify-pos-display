@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopify POS Display</title>
+    <title>Shopify POS Client</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Factura Actual</h1>
-        <div id="order-details">
-            <p id="user-info"></p>
-            <ul id="line-items"></ul>
-            <p id="total-price"></p>
-        </div>
-    </div>
+    <h1>Shopify POS Client</h1>
+    <form id="connectForm">
+        <label for="branchName">Branch Name:</label>
+        <input type="text" id="branchName" name="branchName" required>
+        <br><br>
+        <label for="userEmail">User Email:</label>
+        <input type="email" id="userEmail" name="userEmail" required>
+        <br><br>
+        <button type="submit">Connect</button>
+    </form>
+    <div id="messages"></div>
     <script src="script.js"></script>
 </body>
 </html>
