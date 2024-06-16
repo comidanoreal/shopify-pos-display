@@ -4,6 +4,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 const querystring = require('querystring');
 const WebSocket = require('ws');
+const path = require('path');
 require('dotenv').config();
 
 const SHOPIFY_API_KEY = process.env.SHOPIFY_API_KEY;
@@ -113,6 +114,9 @@ app.get('/order/:location_id/:user_id', (req, res) => {
 
     res.status(200).json(orderData[key]);
 });
+
+// Serve static files from the frontend directory
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
