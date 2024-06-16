@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopify-pos-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: shopify-pos
+  template:
+    metadata:
+      labels:
+        app: shopify-pos
+    spec:
+      containers:
+        - name: shopify-pos
+          image: gcr.io/shopify-pos-display/shopify-pos-backend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: SHOPIFY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: shopify-secrets
+                  key: api_key
+            - name: SHOPIFY_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: shopify-secrets
+                  key: api_secret
+            - name: SHOPIFY_SCOPES
+              valueFrom:
+                secretKeyRef:
+                  name: shopify-secrets
+                  key: scopes
+            - name: SHOPIFY_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: shopify-secrets
+                  key: redirect_uri
+      imagePullSecrets:
+        - name: gcr-json-key
