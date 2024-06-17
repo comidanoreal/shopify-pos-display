@@ -4,6 +4,8 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/shopify-pos-display/shopify-pos-backend:latest']
   - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['get', 'credentials', '$_CLUSTER_NAME', '--region', '$_CLUSTER_REGION']
+  - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'deployment.yml']
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'service.yaml']
@@ -13,3 +15,7 @@ options:
 
 images:
   - 'gcr.io/shopify-pos-display/shopify-pos-backend:latest'
+
+substitutions:
+  _CLUSTER_NAME: 'shopify-pos-cluster'
+  _CLUSTER_REGION: 'us-central1-a'
