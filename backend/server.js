@@ -118,6 +118,11 @@ app.get('/order/:location_id/:user_id', (req, res) => {
     res.status(200).json(orderData[key]);
 });
 
+// Catch-all route to serve the index.html file
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
