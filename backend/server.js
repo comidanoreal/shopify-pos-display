@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const querystring = require('querystring');
 const WebSocket = require('ws');
 require('dotenv').config();
+const path = require('path');
 
 const SHOPIFY_API_KEY = process.env.SHOPIFY_API_KEY;
 const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET;
@@ -13,7 +14,9 @@ const SHOPIFY_REDIRECT_URI = process.env.SHOPIFY_REDIRECT_URI;
 
 const app = express();
 app.use(bodyParser.json());
-app.use(express.static('../frontend')); // Servir archivos estáticos desde el directorio frontend
+
+// Static file serving
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 let orderData = {}; // Store order data by location and user
 
