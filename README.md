@@ -1,1 +1,1 @@
-# shopify-pos-displayTest Triggerr
+# shopify-pos-displayTest Trigger
