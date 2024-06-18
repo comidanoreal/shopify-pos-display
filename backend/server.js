@@ -1,11 +1,11 @@
 const express = require('express');
+const path = require('path');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const crypto = require('crypto');
 const querystring = require('querystring');
 const WebSocket = require('ws');
 require('dotenv').config();
-const path = require('path');
 
 const SHOPIFY_API_KEY = process.env.SHOPIFY_API_KEY;
 const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET;
@@ -14,34 +14,33 @@ const SHOPIFY_REDIRECT_URI = process.env.SHOPIFY_REDIRECT_URI;
 
 const app = express();
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'frontend'))); // Servir archivos estáticos desde 'frontend'
 
-// Static file serving
-app.use(express.static(path.join(__dirname, '../frontend')));
-
-let orderData = {}; // Store order data by location and user
-
+// WebSocket setup
 const wss = new WebSocket.Server({ noServer: true });
-
 wss.on('connection', (ws, req) => {
     const params = new URLSearchParams(req.url.substring(1));
     const branchName = params.get('branch_name');
     const userEmail = params.get('user_email');
     ws.branchName = branchName;
     ws.userEmail = userEmail;
-
     ws.send(JSON.stringify({ message: 'Connected to WebSocket server' }));
 });
 
+// Rutas del servidor
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
+// Shopify OAuth callback
 app.get('/shopify', (req, res) => {
     const shop = req.query.shop;
     if (!shop) {
         return res.status(400).send('Missing shop parameter.');
     }
-
     const state = crypto.randomBytes(16).toString('hex');
     const redirectUri = `${SHOPIFY_REDIRECT_URI}/callback`;
     const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${SHOPIFY_SCOPES}&state=${state}&redirect_uri=${redirectUri}`;
-
     res.cookie('state', state);
     res.redirect(installUrl);
 });
@@ -49,11 +48,9 @@ app.get('/shopify', (req, res) => {
 app.get('/shopify/callback', async (req, res) => {
     const { shop, hmac, code, state } = req.query;
     const stateCookie = req.cookies.state;
-
     if (state !== stateCookie) {
         return res.status(403).send('Request origin cannot be verified');
     }
-
     const map = Object.assign({}, req.query);
     delete map['signature'];
     delete map['hmac'];
@@ -62,18 +59,15 @@ app.get('/shopify/callback', async (req, res) => {
         .createHmac('sha256', SHOPIFY_API_SECRET)
         .update(message)
         .digest('hex');
-
     if (generatedHash !== hmac) {
         return res.status(400).send('HMAC validation failed');
     }
-
     const accessTokenRequestUrl = `https://${shop}/admin/oauth/access_token`;
     const accessTokenPayload = {
         client_id: SHOPIFY_API_KEY,
         client_secret: SHOPIFY_API_SECRET,
         code,
     };
-
     try {
         const response = await axios.post(accessTokenRequestUrl, accessTokenPayload);
         const accessToken = response.data.access_token;
@@ -89,10 +83,8 @@ app.post('/webhook', (req, res) => {
     if (!location_id || !user_id) {
         return res.status(400).send('Missing location_id or user_id.');
     }
-
     // Store the order data
     orderData[`${location_id}_${user_id}`] = { line_items, total_price };
-
     // Broadcast the update to all connected WebSocket clients
     wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN &&
@@ -101,8 +93,6 @@ app.post('/webhook', (req, res) => {
             client.send(JSON.stringify({ line_items, total_price }));
         }
     });
-
-    // Log the webhook data
     console.log(`Received webhook: ${JSON.stringify(req.body)}`);
     res.status(200).send('Webhook received');
 });
@@ -114,15 +104,10 @@ app.get('/order/:location_id/:user_id', (req, res) => {
     if (!orderData[key]) {
         return res.status(404).send('No order data found');
     }
-
     res.status(200).json(orderData[key]);
 });
 
-// Catch-all route to serve the index.html file
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
+// Inicialización del servidor
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
