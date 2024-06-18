@@ -1,28 +1,47 @@
-document.getElementById('connectionForm').addEventListener('submit', function (event) {
+document.getElementById('connection-form').addEventListener('submit', function(event) {
     event.preventDefault();
-    const branchName = document.getElementById('branchName').value;
-    const userEmail = document.getElementById('userEmail').value;
-    const socket = new WebSocket(`ws://${window.location.host}/ws?branch_name=${branchName}&user_email=${userEmail}`);
-
-    socket.addEventListener('message', function (event) {
-        const data = JSON.parse(event.data);
-        if (data.line_items && data.total_price) {
-            const lineItems = document.getElementById('lineItems');
-            lineItems.innerHTML = '';
-            data.line_items.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = `${item.name} - ${item.quantity} x ${item.price}`;
-                lineItems.appendChild(li);
-            });
-            document.getElementById('totalPrice').textContent = data.total_price;
-        }
-    });
-
-    socket.addEventListener('open', function () {
+    const branchName = document.getElementById('branch_name').value;
+    const userEmail = document.getElementById('user_email').value;
+    const ws = new WebSocket(`ws://${window.location.host}/ws?branch_name=${branchName}&user_email=${userEmail}`);
+    
+    ws.onopen = function() {
         console.log('Connected to WebSocket server');
+    };
+    
+    ws.onmessage = function(event) {
+        const orderData = JSON.parse(event.data);
+        displayOrderDetails(orderData);
+    };
+    
+    ws.onerror = function(error) {
+        console.error('WebSocket error: ', error);
+    };
+    
+    ws.onclose = function() {
+        console.log('Disconnected from WebSocket server');
+    };
+});
+
+function displayOrderDetails(orderData) {
+    const orderDetailsElement = document.getElementById('order-details');
+    orderDetailsElement.innerHTML = ''; // Clear previous content
+
+    const lineItems = orderData.line_items || [];
+    const totalPrice = orderData.total_price || 0;
+
+    lineItems.forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.classList.add('order-item');
+        itemElement.innerHTML = `
+            <p>Product: ${item.name}</p>
+            <p>Quantity: ${item.quantity}</p>
+            <p>Subtotal: ${item.price * item.quantity}</p>
+        `;
+        orderDetailsElement.appendChild(itemElement);
     });
 
-    socket.addEventListener('close', function () {
-        console.log('Disconnected from WebSocket server');
-    });
-});
+    const totalElement = document.createElement('div');
+    totalElement.classList.add('order-total');
+    totalElement.innerHTML = `<p>Total Price: ${totalPrice}</p>`;
+    orderDetailsElement.appendChild(totalElement);
+}
