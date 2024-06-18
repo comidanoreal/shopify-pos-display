@@ -2,22 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopify POS Client</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Shopify POS Display</title>
+    <style>
+        .order-item, .order-total {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Shopify POS Client</h1>
-    <form id="connectForm">
-        <label for="branchName">Branch Name:</label>
-        <input type="text" id="branchName" name="branchName" required>
-        <br><br>
-        <label for="userEmail">User Email:</label>
-        <input type="email" id="userEmail" name="userEmail" required>
-        <br><br>
+    <h1>Shopify POS Display</h1>
+    <form id="connection-form">
+        <label for="branch_name">Branch Name:</label>
+        <input type="text" id="branch_name" name="branch_name" required>
+        <label for="user_email">User Email:</label>
+        <input type="email" id="user_email" name="user_email" required>
         <button type="submit">Connect</button>
     </form>
-    <div id="messages"></div>
+    <div id="order-data">
+        <h2>Order Data</h2>
+        <div id="order-details"></div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
