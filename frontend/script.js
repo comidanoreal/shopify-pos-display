@@ -2,7 +2,7 @@ document.getElementById('connection-form').addEventListener('submit', function(e
     event.preventDefault();
     const branchName = document.getElementById('branch_name').value;
     const userEmail = document.getElementById('user_email').value;
-    const ws = new WebSocket(`ws://${window.location.host}/ws?branch_name=${branchName}&user_email=${userEmail}`);
+    const ws = new WebSocket(`ws://34.173.228.121/ws?branch_name=${branchName}&user_email=${userEmail}`);
     
     ws.onopen = function() {
         console.log('Connected to WebSocket server');
