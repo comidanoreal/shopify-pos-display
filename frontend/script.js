@@ -2,21 +2,22 @@ document.getElementById('connection-form').addEventListener('submit', function(e
     event.preventDefault();
     const branchName = document.getElementById('branch_name').value;
     const userEmail = document.getElementById('user_email').value;
-    const ws = new WebSocket(`ws://34.173.228.121/ws?branch_name=${branchName}&user_email=${userEmail}`);
-    
+    const wsUrl = `ws://34.173.228.121/ws?branch_name=${branchName}&user_email=${userEmail}`;
+    const ws = new WebSocket(wsUrl);
+
     ws.onopen = function() {
         console.log('Connected to WebSocket server');
     };
-    
+
     ws.onmessage = function(event) {
         const orderData = JSON.parse(event.data);
         displayOrderDetails(orderData);
     };
-    
+
     ws.onerror = function(error) {
         console.error('WebSocket error: ', error);
     };
-    
+
     ws.onclose = function() {
         console.log('Disconnected from WebSocket server');
     };
