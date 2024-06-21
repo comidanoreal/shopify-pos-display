@@ -10,9 +10,7 @@
 
     <script>
         document.getElementById('connectBtn').addEventListener('click', function() {
-            const branchName = 'RAPPI';
-            const userEmail = 'tupelomedellin@gmail.com';
-            const wsUrl = `ws://34.173.228.121/ws?branch_name=${branchName}&user_email=${userEmail}`;
+            const wsUrl = `ws://34.173.228.121/ws`;
             const ws = new WebSocket(wsUrl);
 
             ws.onopen = function() {
